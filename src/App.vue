@@ -3,7 +3,7 @@
 </script>
 
 <template>
-<h1 class="text-2xl text-red-500">test</h1>
+<h1 class="text-2xl text-red-500">test koneksi</h1>
 </template>
 
 <style scoped>
