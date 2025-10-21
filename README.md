@@ -63,7 +63,7 @@ Learn more about IDE Support for Vue in the [Vue Docs Scaling up Guide](https://
   ```bash
   npm install apexcharts vue3-apexcharts
   ```
-- [ ] Konfigurasi Firebase di `src/firebase.js`
+- [x] Konfigurasi Firebase di `src/firebase.js`
 
 ---
 
