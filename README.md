@@ -197,4 +197,4 @@ src/
 ## 🪄 Credits
 Dibuat oleh tim developer Vue dengan ❤️ menggunakan:
 **Vue 3 + Vite + Tailwind + Firebase + ApexCharts**
->>>>>>> a732e08b8f8c3826e98a4c5c37057fb15edb7425
+
