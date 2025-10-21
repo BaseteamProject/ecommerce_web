@@ -42,24 +42,24 @@ Learn more about IDE Support for Vue in the [Vue Docs Scaling up Guide](https://
 ## 📋 To-Do List
 
 ### 🧱 1️⃣ Setup Project
-- [ ] Inisialisasi proyek Vue + Vite  
+- [x] Inisialisasi proyek Vue + Vite  
   ```bash
   npm create vite@latest ecommerce-web -- --template vue
   ```
-- [ ] Install Tailwind CSS  
+- [x] Install Tailwind CSS  
   ```bash
   npm install -D tailwindcss postcss autoprefixer
   npx tailwindcss init -p
   ```
-- [ ] Install Firebase  
+- [x] Install Firebase  
   ```bash
   npm install firebase
   ```
-- [ ] Install Pinia dan Vue Router  
+- [x] Install Pinia dan Vue Router  
   ```bash
   npm install pinia vue-router
   ```
-- [ ] Install ApexCharts  
+- [x] Install ApexCharts  
   ```bash
   npm install apexcharts vue3-apexcharts
   ```
