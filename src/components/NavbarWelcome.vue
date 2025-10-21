@@ -2,16 +2,16 @@
   <nav
     ref="navbar"
     :class="[ 
-      'fixed left-1/2 top-10 transform -translate-x-1/2 z-10 transition-all duration-500 overflow-hidden  w-full max-w-7xl',
+      'fixed left-1/2 top-30 transform -translate-x-1/2  transition-all duration-500 overflow-hidden  w-full max-w-7xl',
       isScrolled
-        ? 'bg-gray-950/80 backdrop-blur shadow-lg shadow-black/70'
+        ? 'bg-gray-950/80 backdrop-blur shadow-lg shadow-white/70'
         : 'bg-black'
     ]"
     :style="{
       top: isScrolled ? '0' : '1rem',
-      borderRadius: isScrolled ? '2rem' : '1rem',
+      borderRadius: isScrolled ? '3rem' : '2rem',
       transform: isScrolled
-        ? 'translateX(-50%) scale(0.98)'
+        ? 'translateX(-50%) scale(0.90)'
         : 'translateX(-50%) scale(1)',
     }"
   >

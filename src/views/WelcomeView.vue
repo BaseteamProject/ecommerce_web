@@ -1,7 +1,7 @@
 <template>
     <NavbarWel />
     <div class="mt-20 h-[200vh]">
-<p>Welcome To My App</p>
+        <p>Welcome To My App</p>
     </div>
 </template>
 
@@ -12,7 +12,7 @@ export default {
     components: {
         NavbarWel
     },
-    setup () {
+    setup() {
 
 
         return {}
@@ -20,6 +20,4 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
-
-</style>
+<style lang="scss" scoped></style>
