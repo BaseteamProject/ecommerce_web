@@ -69,8 +69,8 @@ Learn more about IDE Support for Vue in the [Vue Docs Scaling up Guide](https://
 
 ### 🔑 2️⃣ Authentication (Login & Sign Up)
 - [x] Halaman `WelcomePage.vue` → tombol Login & Sign Up  
-- [ ] `Login.vue` → Firebase Auth (`signInWithEmailAndPassword()`)  
-- [ ] `SignUp.vue` → Daftar user + pilih role (admin / buyer)  
+- [x] `Login.vue` → Firebase Auth (`signInWithEmailAndPassword()`)  
+- [x] `SignUp.vue` → Daftar user + pilih role (admin / buyer)  
 - [ ] Simpan role user di Firestore collection `users`  
 - [ ] Redirect sesuai role:  
   - Admin → `/dashboard`  
