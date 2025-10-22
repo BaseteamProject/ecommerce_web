@@ -152,25 +152,34 @@ Learn more about IDE Support for Vue in the [Vue Docs Scaling up Guide](https://
 
 ## 📂 Struktur Folder
 ```
-src/
- ├─ assets/
- ├─ components/
- │   ├─ Navbar.vue
- │   ├─ ProductCard.vue
- │   ├─ StatsChart.vue
- │   └─ DataTable.vue
- ├─ pages/
- │   ├─ WelcomePage.vue
- │   ├─ Login.vue
- │   ├─ SignUp.vue
- │   ├─ Dashboard.vue
- │   └─ Shop.vue
- ├─ stores/
- │   └─ productStore.js
- ├─ router/
- │   └─ index.js
- ├─ firebase.js
- └─ App.vue
+ecommerce_web/
+├─ .gitignore
+├─ index.html
+├─ package-lock.json
+├─ package.json
+├─ postcss.config.js
+├─ README.md
+├─ tailwind.config.js
+├─ vite.config.js
+├─ public/
+│   └─ vite.svg
+└─ src/
+    ├─ App.vue
+    ├─ main.js
+    ├─ style.css
+    ├─ assets/
+    │   ├─ tailwind.css
+    │   └─ vue.svg
+    ├─ components/
+    │   └─ NavbarWelcome.vue
+    ├─ lib/
+    │   └─ firebase.js
+    ├─ routes/
+    │   └─ index.js
+    └─ views/
+        ├─ LoginView.vue
+        ├─ RegisterView.vue
+        └─ WelcomeView.vue
 ```
 
 ---
