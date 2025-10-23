@@ -65,15 +65,18 @@ const router = useRouter();
 
 const registerUser = async () => {
   errorMsg.value = "";
+
   if (!role.value) {
     errorMsg.value = "Harap pilih role (admin atau buyer).";
     return;
   }
 
   try {
+    // 🔹 1️⃣ Daftarkan user di Firebase Auth
     const userCredential = await createUserWithEmailAndPassword(auth, email.value, password.value);
     const user = userCredential.user;
 
+    // 🔹 2️⃣ Simpan data user + role ke Firestore
     await setDoc(doc(db, "users", user.uid), {
       uid: user.uid,
       email: user.email,
@@ -81,13 +84,19 @@ const registerUser = async () => {
       createdAt: new Date().toISOString(),
     });
 
-    router.push("/login");
+    // 🔹 3️⃣ Redirect sesuai role
+    if (role.value === "admin") {
+      router.push("/dashboard");
+    } else {
+      router.push("/shop");
+    }
+
   } catch (err) {
     console.error("Register error:", err);
     if (err.code === "auth/email-already-in-use") {
       errorMsg.value = "Email sudah terdaftar.";
     } else if (err.code === "auth/weak-password") {
-      errorMsg.value = "Password terlalu lemah (min 6 karakter).";
+      errorMsg.value = "Password terlalu lemah (minimal 6 karakter).";
     } else {
       errorMsg.value = err.message || "Terjadi kesalahan saat registrasi.";
     }

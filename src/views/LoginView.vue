@@ -44,7 +44,8 @@
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../lib/firebase";
+import { doc, getDoc } from "firebase/firestore";
+import { auth, db } from "../lib/firebase";
 
 const email = ref("");
 const password = ref("");
@@ -54,8 +55,27 @@ const router = useRouter();
 const loginUser = async () => {
   errorMsg.value = "";
   try {
-    await signInWithEmailAndPassword(auth, email.value, password.value);
-    router.push("/dashboard");
+    // 🔹 Login pakai Firebase Auth
+    const userCredential = await signInWithEmailAndPassword(auth, email.value, password.value);
+    const user = userCredential.user;
+
+    // 🔹 Ambil role dari Firestore (collection "users")
+    const userDoc = await getDoc(doc(db, "users", user.uid));
+    if (userDoc.exists()) {
+      const role = userDoc.data().role;
+      console.log("Role ditemukan:", role);
+
+      // 🔹 Redirect sesuai role
+      if (role === "admin") {
+        router.push("/dashboard");
+      } else if (role === "buyer") {
+        router.push("/shop");
+      } else {
+        errorMsg.value = "Role tidak dikenali.";
+      }
+    } else {
+      errorMsg.value = "Data pengguna tidak ditemukan di database.";
+    }
   } catch (err) {
     console.error("Login error:", err);
     if (err.code === "auth/user-not-found" || err.code === "auth/wrong-password") {
