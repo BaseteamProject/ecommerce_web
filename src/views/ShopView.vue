@@ -10,13 +10,33 @@
           Logout
         </button>
       </div>
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div v-for="product in products" :key="product.id" class="bg-white p-6 rounded-lg shadow-md">
-          <img :src="product.image" :alt="product.name" class="w-full h-48 object-cover rounded mb-4" />
-          <h2 class="text-xl font-semibold mb-2">{{ product.name }}</h2>
+
+      <!-- Grid produk -->
+      <div v-if="loading" class="text-center text-gray-500">Memuat produk...</div>
+      <div v-else-if="products.length === 0" class="text-center text-gray-500">
+        Belum ada produk tersedia.
+      </div>
+      <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div
+          v-for="product in products"
+          :key="product.id"
+          class="bg-white p-6 rounded-lg shadow-md hover:shadow-xl transition"
+        >
+          <img
+            :src="product.image"
+            :alt="product.name"
+            class="w-full h-48 object-cover rounded mb-4"
+          />
+          <h2 class="text-xl font-semibold mb-2 text-gray-800">{{ product.name }}</h2>
           <p class="text-gray-600 mb-4">{{ product.description }}</p>
-          <p class="text-lg font-bold text-green-600 mb-4">${{ product.price }}</p>
-          <button class="w-full bg-green-500 text-white py-2 rounded hover:bg-green-600">Add to Cart</button>
+          <p class="text-lg font-bold text-blue-600 mb-4">Rp {{ product.price.toLocaleString() }}</p>
+
+          <button
+            @click="buyNow(product)"
+            class="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 transition-colors"
+          >
+            Beli Sekarang
+          </button>
         </div>
       </div>
     </div>
@@ -24,38 +44,51 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { signOut } from "firebase/auth";
-import { auth } from "../lib/firebase";
+import { auth, db } from "../lib/firebase";
+import { collection, getDocs, addDoc, serverTimestamp } from "firebase/firestore";
 
 const router = useRouter();
+const products = ref([]);
+const loading = ref(true);
 
-// Sample products (hardcoded for now)
-const products = ref([
-  {
-    id: 1,
-    name: "Product 1",
-    description: "This is a sample product description.",
-    price: 29.99,
-    image: "https://via.placeholder.com/300x200",
-  },
-  {
-    id: 2,
-    name: "Product 2",
-    description: "Another sample product.",
-    price: 49.99,
-    image: "https://via.placeholder.com/300x200",
-  },
-  {
-    id: 3,
-    name: "Product 3",
-    description: "Yet another product.",
-    price: 19.99,
-    image: "https://via.placeholder.com/300x200",
-  },
-]);
+// 🔹 Ambil data produk dari Firestore
+onMounted(async () => {
+  try {
+    const querySnapshot = await getDocs(collection(db, "products"));
+    products.value = querySnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+  } catch (err) {
+    console.error("Gagal memuat produk:", err);
+  } finally {
+    loading.value = false;
+  }
+});
 
+// 🔹 Fungsi beli sekarang
+const buyNow = async (product) => {
+  try {
+    // Simpan order ke Firestore (opsional)
+    await addDoc(collection(db, "orders"), {
+      productId: product.id,
+      productName: product.name,
+      price: product.price,
+      userId: auth.currentUser?.uid || "guest",
+      createdAt: serverTimestamp(),
+    });
+
+    // Arahkan ke link Dana (contoh link statis / bisa dinamis)
+    window.open("https://link.dana.id/minta?amount=" + product.price, "_blank");
+  } catch (err) {
+    console.error("Gagal melakukan pembelian:", err);
+  }
+};
+
+// 🔹 Logout
 const logout = async () => {
   try {
     await signOut(auth);

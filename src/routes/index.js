@@ -1,15 +1,15 @@
 import { createRouter, createWebHistory } from "vue-router";
 
-// Import views
+// 📄 Import views utama
 import WelcomeView from "../views/WelcomeView.vue";
 import LoginView from "../views/LoginView.vue";
 import RegisterView from "../views/RegisterView.vue";
 
-// (Opsional, tambahkan jika sudah ada nanti)
+// 📄 Import halaman tambahan (dashboard & shop)
 import DashboardView from "../views/DashboardView.vue";
 import ShopView from "../views/ShopView.vue";
 
-// Import Firebase (auth + firestore)
+// 🧩 Import Firebase (auth + firestore)
 import { auth, db } from "../lib/firebase";
 import { doc, getDoc } from "firebase/firestore";
 
@@ -47,39 +47,54 @@ const router = createRouter({
   history: createWebHistory(),
   routes,
   scrollBehavior() {
+    // setiap navigasi, scroll ke atas
     return { top: 0 };
   },
 });
 
-// 🚦 Middleware: Cek login & role user
+// 🚦 Middleware / Route Guard:
+// Cek apakah user sudah login dan punya role yang sesuai
 router.beforeEach(async (to, from, next) => {
   const requiresAuth = to.matched.some((record) => record.meta.requiresAuth);
 
   if (!requiresAuth) {
-    return next(); // bebas akses jika route tidak butuh login
+    // route bebas akses
+    return next();
   }
 
+  // 🔑 Ambil user dari Firebase Auth
   const user = auth.currentUser;
   if (!user) {
-    return next("/login"); // jika belum login, arahkan ke login
-  }
-
-  // Ambil role user dari Firestore
-  const userDoc = await getDoc(doc(db, "users", user.uid));
-  const userData = userDoc.data();
-
-  if (!userData) {
+    // belum login → redirect ke login
     return next("/login");
   }
 
-  // Cek role sesuai meta route
-  if (to.meta.role && userData.role !== to.meta.role) {
-    // jika role tidak cocok, redirect sesuai role user
-    if (userData.role === "admin") return next("/dashboard");
-    if (userData.role === "buyer") return next("/shop");
-  }
+  // 📦 Ambil data user dari Firestore
+  try {
+    const userRef = doc(db, "users", user.uid);
+    const userSnap = await getDoc(userRef);
 
-  next();
+    if (!userSnap.exists()) {
+      console.warn("User data not found in Firestore");
+      return next("/login");
+    }
+
+    const userData = userSnap.data();
+
+    // 🧭 Cek role user dengan meta role route
+    if (to.meta.role && userData.role !== to.meta.role) {
+      // Role tidak sesuai → redirect sesuai role
+      if (userData.role === "admin") return next("/dashboard");
+      if (userData.role === "buyer") return next("/shop");
+      return next("/login");
+    }
+
+    // semua cocok → lanjut
+    next();
+  } catch (error) {
+    console.error("Route guard error:", error);
+    next("/login");
+  }
 });
 
 export default router;

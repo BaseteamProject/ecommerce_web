@@ -8,19 +8,19 @@
           v-model="email"
           type="email"
           placeholder="Email"
-          class="p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400"
+          class="p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
           required
         />
         <input
           v-model="password"
           type="password"
           placeholder="Password"
-          class="p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400"
+          class="p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
           required
         />
         <select
           v-model="role"
-          class="p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400"
+          class="p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
           required
         >
           <option disabled value="">-- Pilih Role --</option>
@@ -30,9 +30,10 @@
 
         <button
           type="submit"
-          class="bg-green-500 text-white py-2.5 rounded-lg font-semibold hover:bg-green-600 transition-colors duration-200"
+          :disabled="loading"
+          class="bg-blue-500 text-white py-2.5 rounded-lg font-semibold hover:bg-blue-600 transition-colors duration-200 disabled:opacity-50"
         >
-          Daftar
+          {{ loading ? "Memproses..." : "Daftar" }}
         </button>
       </form>
 
@@ -61,22 +62,23 @@ const email = ref("");
 const password = ref("");
 const role = ref("");
 const errorMsg = ref("");
+const loading = ref(false);
 const router = useRouter();
 
 const registerUser = async () => {
   errorMsg.value = "";
+  loading.value = true;
 
   if (!role.value) {
     errorMsg.value = "Harap pilih role (admin atau buyer).";
+    loading.value = false;
     return;
   }
 
   try {
-    // 🔹 1️⃣ Daftarkan user di Firebase Auth
     const userCredential = await createUserWithEmailAndPassword(auth, email.value, password.value);
     const user = userCredential.user;
 
-    // 🔹 2️⃣ Simpan data user + role ke Firestore
     await setDoc(doc(db, "users", user.uid), {
       uid: user.uid,
       email: user.email,
@@ -84,12 +86,9 @@ const registerUser = async () => {
       createdAt: new Date().toISOString(),
     });
 
-    // 🔹 3️⃣ Redirect sesuai role
-    if (role.value === "admin") {
-      router.push("/dashboard");
-    } else {
-      router.push("/shop");
-    }
+    // Redirect langsung sesuai role
+    if (role.value === "admin") router.push("/dashboard");
+    else router.push("/shop");
 
   } catch (err) {
     console.error("Register error:", err);
@@ -100,6 +99,8 @@ const registerUser = async () => {
     } else {
       errorMsg.value = err.message || "Terjadi kesalahan saat registrasi.";
     }
+  } finally {
+    loading.value = false;
   }
 };
 </script>
