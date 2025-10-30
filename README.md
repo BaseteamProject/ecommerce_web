@@ -79,7 +79,7 @@ Learn more about IDE Support for Vue in the [Vue Docs Scaling up Guide](https://
 ---
 
 ### 🧭 3️⃣ Routing
-- [ ] Setup `vue-router`
+- [x] Setup `vue-router`
   ```
   /           → WelcomePage
   /login      → Login
@@ -87,7 +87,7 @@ Learn more about IDE Support for Vue in the [Vue Docs Scaling up Guide](https://
   /dashboard  → AdminDashboard
   /shop       → BuyerShop
   ```
-- [ ] Tambahkan route guard: hanya Admin bisa ke `/dashboard`
+- [x] Tambahkan route guard: hanya Admin bisa ke `/dashboard`
 
 ---
 
