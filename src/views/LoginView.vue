@@ -18,11 +18,13 @@
           class="p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
           required
         />
+
         <button
           type="submit"
-          class="bg-blue-500 text-white py-2.5 rounded-lg font-semibold hover:bg-blue-600 transition-colors duration-200"
+          :disabled="loading"
+          class="bg-blue-500 text-white py-2.5 rounded-lg font-semibold hover:bg-blue-600 transition-colors duration-200 disabled:opacity-50"
         >
-          Login
+          {{ loading ? "Memproses..." : "Login" }}
         </button>
       </form>
 
@@ -50,32 +52,31 @@ import { auth, db } from "../lib/firebase";
 const email = ref("");
 const password = ref("");
 const errorMsg = ref("");
+const loading = ref(false);
 const router = useRouter();
 
 const loginUser = async () => {
   errorMsg.value = "";
+  loading.value = true;
+
   try {
-    // 🔹 Login pakai Firebase Auth
     const userCredential = await signInWithEmailAndPassword(auth, email.value, password.value);
     const user = userCredential.user;
 
-    // 🔹 Ambil role dari Firestore (collection "users")
+    // Ambil role dari Firestore
     const userDoc = await getDoc(doc(db, "users", user.uid));
-    if (userDoc.exists()) {
-      const role = userDoc.data().role;
-      console.log("Role ditemukan:", role);
-
-      // 🔹 Redirect sesuai role
-      if (role === "admin") {
-        router.push("/dashboard");
-      } else if (role === "buyer") {
-        router.push("/shop");
-      } else {
-        errorMsg.value = "Role tidak dikenali.";
-      }
-    } else {
-      errorMsg.value = "Data pengguna tidak ditemukan di database.";
+    if (!userDoc.exists()) {
+      throw new Error("Data pengguna tidak ditemukan di database.");
     }
+
+    const role = userDoc.data().role;
+    console.log("Role:", role);
+
+    // Redirect sesuai role
+    if (role === "admin") router.push("/dashboard");
+    else if (role === "buyer") router.push("/shop");
+    else throw new Error("Role tidak dikenali.");
+
   } catch (err) {
     console.error("Login error:", err);
     if (err.code === "auth/user-not-found" || err.code === "auth/wrong-password") {
@@ -83,6 +84,8 @@ const loginUser = async () => {
     } else {
       errorMsg.value = err.message || "Terjadi kesalahan saat login.";
     }
+  } finally {
+    loading.value = false;
   }
 };
 </script>
