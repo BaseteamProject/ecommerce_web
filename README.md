@@ -93,10 +93,10 @@ Learn more about IDE Support for Vue in the [Vue Docs Scaling up Guide](https://
 
 ### 🛍️ 4️⃣ Buyer Side
 **File:** `Shop.vue`  
-- [ ] Ambil data produk dari Firestore (`products` collection)
-- [ ] Tampilkan produk dalam card grid (Tailwind)
-- [ ] Tombol **"Beli Sekarang"** → buka link Dana
-- [ ] (Opsional) Simpan pembelian ke Firestore `orders`
+- [x] Ambil data produk dari Firestore (`products` collection)
+- [x] Tampilkan produk dalam card grid (Tailwind)
+- [x] Tombol **"Beli Sekarang"** → buka link Dana
+- [x] (Opsional) Simpan pembelian ke Firestore `orders`
 
 ---
 
