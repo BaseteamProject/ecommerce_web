@@ -10,6 +10,11 @@
           Logout
         </button>
       </div>
+      
+      <div v-if="!isFirebaseConfigured" class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-6" role="alert">
+        <p><strong>Perhatian:</strong> Firebase belum dikonfigurasi. Aplikasi berjalan dalam mode demo.</p>
+      </div>
+
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <div class="bg-white p-6 rounded-lg shadow-md">
           <h2 class="text-xl font-semibold mb-4">Manage Products</h2>
@@ -32,14 +37,26 @@
 </template>
 
 <script setup>
+import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { signOut } from "firebase/auth";
-import { auth } from "../lib/firebase";
+import { auth, isFirebaseConfigured } from "../lib/firebase";
 
 const router = useRouter();
+const isFirebaseConfiguredRef = ref(isFirebaseConfigured);
+
+onMounted(() => {
+  // Untuk memastikan nilai terbaru
+});
 
 const logout = async () => {
   try {
+    // Jika Firebase tidak dikonfigurasi, langsung redirect
+    if (!isFirebaseConfigured) {
+      router.push("/");
+      return;
+    }
+
     await signOut(auth);
     router.push("/");
   } catch (error) {
