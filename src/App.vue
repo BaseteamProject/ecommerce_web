@@ -1,13 +1,16 @@
-<script setup>
-import { RouterView } from "vue-router";
-</script>
-
 <template>
-  <div>
-    <RouterView />
+  <div v-if="!authStore.authReady" class="min-h-screen flex items-center justify-center">
+    <p class="text-lg">Loading...</p>
+  </div>
+  <div v-else>
+    <NavbarWelcome v-if="!authStore.user" />
+    <router-view />
   </div>
 </template>
 
-<style scoped>
+<script setup>
+import { useAuthStore } from "./stores/authStore";
+import NavbarWelcome from "./components/NavbarWelcome.vue";
 
-</style>
+const authStore = useAuthStore();
+</script>
