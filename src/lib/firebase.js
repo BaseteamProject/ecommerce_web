@@ -22,6 +22,8 @@ const firebaseConfig = {
   measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || "demo-measurement-id",
 };
 
+
+
 // Validasi konfigurasi dasar
 const isFirebaseConfigured = firebaseConfig.apiKey !== "demo-api-key";
 

@@ -4,14 +4,23 @@ export const welcomeRepository = {
             {
                 header: 'Module 1',
                 description: 'Description for Module 1',
-                image: 'https://example.com/module1.jpg',
-            },
-            {
-                header: 'Module 2',
-                description: 'Description for Module 2',
-                image: 'https://example.com/module2.jpg',
             }
         ]
-    }
+    },
+    async getCardsData() {
+        return [
+            {
+                title: 'Card 1',
+                description: 'Description for Card 1',
+            }, {
+                title: 'Card 2',
+                description: 'Description for Card 2',
+            }, {
+                title: 'Card 3',
+                description: 'Description for Card 3',
+            }
+        ]
+    },
+
 }
 
