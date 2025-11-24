@@ -10,7 +10,7 @@ import DashboardView from "../views/DashboardView.vue";
 import ShopView from "../views/ShopView.vue";
 
 // 🧩 Import Firebase (auth + firestore)
-import { auth, db } from "../lib/firebase";
+import { auth, db, isFirebaseConfigured } from "../lib/firebase";
 import { doc, getDoc } from "firebase/firestore";
 
 const routes = [
@@ -55,6 +55,12 @@ const router = createRouter({
 // 🚦 Middleware / Route Guard:
 // Cek apakah user sudah login dan punya role yang sesuai
 router.beforeEach(async (to, from, next) => {
+  // Jika Firebase tidak dikonfigurasi, izinkan semua rute
+  if (!isFirebaseConfigured) {
+    console.warn("Firebase not configured, bypassing auth checks");
+    return next();
+  }
+
   const requiresAuth = to.matched.some((record) => record.meta.requiresAuth);
 
   if (!requiresAuth) {

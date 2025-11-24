@@ -23,13 +23,13 @@
           class="bg-white p-6 rounded-lg shadow-md hover:shadow-xl transition"
         >
           <img
-            :src="product.image"
+            :src="product.image || 'https://placehold.co/300x200?text=Product+Image'"
             :alt="product.name"
             class="w-full h-48 object-cover rounded mb-4"
           />
           <h2 class="text-xl font-semibold mb-2 text-gray-800">{{ product.name }}</h2>
           <p class="text-gray-600 mb-4">{{ product.description }}</p>
-          <p class="text-lg font-bold text-blue-600 mb-4">Rp {{ product.price.toLocaleString() }}</p>
+          <p class="text-lg font-bold text-blue-600 mb-4">Rp {{ formatPrice(product.price) }}</p>
 
           <button
             @click="buyNow(product)"
@@ -47,15 +47,50 @@
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { signOut } from "firebase/auth";
-import { auth, db } from "../lib/firebase";
 import { collection, getDocs, addDoc, serverTimestamp } from "firebase/firestore";
+import { auth, db, isFirebaseConfigured } from "../lib/firebase";
 
 const router = useRouter();
 const products = ref([]);
 const loading = ref(true);
 
+// 🔹 Format harga
+const formatPrice = (price) => {
+  return new Intl.NumberFormat('id-ID').format(price || 0);
+};
+
 // 🔹 Ambil data produk dari Firestore
 onMounted(async () => {
+  // Jika Firebase tidak dikonfigurasi, gunakan data dummy
+  if (!isFirebaseConfigured) {
+    console.warn("Firebase not configured, using dummy data");
+    products.value = [
+      {
+        id: '1',
+        name: 'Produk Demo 1',
+        description: 'Deskripsi produk demo 1',
+        price: 100000,
+        image: 'https://placehold.co/300x200?text=Demo+Product+1'
+      },
+      {
+        id: '2',
+        name: 'Produk Demo 2',
+        description: 'Deskripsi produk demo 2',
+        price: 150000,
+        image: 'https://placehold.co/300x200?text=Demo+Product+2'
+      },
+      {
+        id: '3',
+        name: 'Produk Demo 3',
+        description: 'Deskripsi produk demo 3',
+        price: 200000,
+        image: 'https://placehold.co/300x200?text=Demo+Product+3'
+      }
+    ];
+    loading.value = false;
+    return;
+  }
+
   try {
     const querySnapshot = await getDocs(collection(db, "products"));
     products.value = querySnapshot.docs.map((doc) => ({
@@ -71,6 +106,12 @@ onMounted(async () => {
 
 // 🔹 Fungsi beli sekarang
 const buyNow = async (product) => {
+  // Jika Firebase tidak dikonfigurasi, tampilkan alert
+  if (!isFirebaseConfigured) {
+    alert(`Redirect ke pembayaran untuk: ${product.name}\nHarga: Rp ${formatPrice(product.price)}`);
+    return;
+  }
+
   try {
     // Simpan order ke Firestore (opsional)
     await addDoc(collection(db, "orders"), {
@@ -91,6 +132,12 @@ const buyNow = async (product) => {
 // 🔹 Logout
 const logout = async () => {
   try {
+    // Jika Firebase tidak dikonfigurasi, langsung redirect
+    if (!isFirebaseConfigured) {
+      router.push("/");
+      return;
+    }
+
     await signOut(auth);
     router.push("/");
   } catch (error) {

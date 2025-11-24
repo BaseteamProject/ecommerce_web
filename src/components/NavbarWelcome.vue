@@ -1,46 +1,39 @@
 <template>
   <nav
     ref="navbar"
-    :class="[ 
-      'fixed left-1/2 top-30 transform -translate-x-1/2  transition-all duration-500 overflow-hidden  w-full max-w-7xl',
+    :class="[
+      'fixed left-1/2 w-full max-w-7xl overflow-hidden transition-all duration-500 z-50 -translate-x-1/2',
       isScrolled
-        ? 'bg-gray-950/80 backdrop-blur shadow-lg shadow-white/70'
-        : 'bg-black'
+        ? 'top-0 scale-90 rounded-[3rem] bg-gray-950/80 backdrop-blur shadow-lg shadow-white/70'
+        : 'top-[1rem] scale-100 rounded-[2rem] bg-black'
     ]"
-    :style="{
-      top: isScrolled ? '0' : '1rem',
-      borderRadius: isScrolled ? '3rem' : '2rem',
-      transform: isScrolled
-        ? 'translateX(-50%) scale(0.90)'
-        : 'translateX(-50%) scale(1)',
-    }"
   >
     <!-- Border Gradient -->
     <div
       class="absolute inset-0 rounded-[inherit] p-[2px] transition-all duration-500 pointer-events-none"
+      :class="isScrolled ? 'opacity-100' : 'opacity-50'"
       :style="{
         background: isScrolled
           ? 'linear-gradient(to right, #8b5cf6, #1f1b2e)'
-          : '#7c3aed',
-        opacity: isScrolled ? 1 : 0.5
+          : '#7c3aed'
       }"
     >
       <div
         class="w-full h-full rounded-[inherit]"
-        :style="{
-          background: isScrolled
-            ? 'rgba(10,10,15,0.8)'
-            : 'rgba(0,0,0,1)'
-        }"
+        :class="isScrolled ? 'bg-[rgba(10,10,15,0.8)]' : 'bg-[rgba(0,0,0,1)]'"
       ></div>
     </div>
 
-    <div class="relative flex justify-between items-center px-6 py-3 transition-all duration-500"
-      :class="isScrolled ? 'py-2' : 'py-4'">
+    <div
+      class="relative flex justify-between items-center px-6 transition-all duration-500"
+      :class="isScrolled ? 'py-2' : 'py-4'"
+    >
       <!-- Logo -->
       <div class="flex items-center space-x-2">
         <img src="" alt="Logo" class="h-8 w-8 rounded-full bg-violet-600" />
-        <span class="text-xl font-semibold text-white tracking-wide">MyShop</span>
+        <span class="text-xl font-semibold text-white tracking-wide"
+          >MyShop</span
+        >
       </div>
 
       <!-- Menu kanan (desktop) -->

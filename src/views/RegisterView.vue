@@ -3,7 +3,7 @@
     <div class="w-full max-w-md p-8 bg-white rounded-2xl shadow-lg">
       <h2 class="text-3xl font-bold mb-6 text-center text-gray-700">Sign Up</h2>
 
-      <form @submit.prevent="registerUser" class="flex flex-col gap-4">
+      <form @submit.prevent="handleRegister" class="flex flex-col gap-4">
         <input
           v-model="email"
           type="email"
@@ -30,15 +30,15 @@
 
         <button
           type="submit"
-          :disabled="loading"
+          :disabled="authStore.loading"
           class="bg-blue-500 text-white py-2.5 rounded-lg font-semibold hover:bg-blue-600 transition-colors duration-200 disabled:opacity-50"
         >
-          {{ loading ? "Memproses..." : "Daftar" }}
+          {{ authStore.loading ? "Memproses..." : "Daftar" }}
         </button>
       </form>
 
-      <p v-if="errorMsg" class="text-red-500 mt-3 text-sm text-center">
-        {{ errorMsg }}
+      <p v-if="authStore.errorMsg" class="text-red-500 mt-3 text-sm text-center">
+        {{ authStore.errorMsg }}
       </p>
 
       <p class="mt-6 text-sm text-center text-gray-600">
@@ -53,54 +53,15 @@
 
 <script setup>
 import { ref } from "vue";
-import { useRouter } from "vue-router";
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import { doc, setDoc } from "firebase/firestore";
-import { auth, db } from "../lib/firebase";
+import { useAuthStore } from "../stores/authStore";
 
 const email = ref("");
 const password = ref("");
 const role = ref("");
-const errorMsg = ref("");
-const loading = ref(false);
-const router = useRouter();
 
-const registerUser = async () => {
-  errorMsg.value = "";
-  loading.value = true;
+const authStore = useAuthStore();
 
-  if (!role.value) {
-    errorMsg.value = "Harap pilih role (admin atau buyer).";
-    loading.value = false;
-    return;
-  }
-
-  try {
-    const userCredential = await createUserWithEmailAndPassword(auth, email.value, password.value);
-    const user = userCredential.user;
-
-    await setDoc(doc(db, "users", user.uid), {
-      uid: user.uid,
-      email: user.email,
-      role: role.value,
-      createdAt: new Date().toISOString(),
-    });
-
-    // Redirect langsung sesuai role
-    if (role.value === "admin") router.push("/dashboard");
-    else router.push("/shop");
-
-  } catch (err) {
-    console.error("Register error:", err);
-    if (err.code === "auth/email-already-in-use") {
-      errorMsg.value = "Email sudah terdaftar.";
-    } else if (err.code === "auth/weak-password") {
-      errorMsg.value = "Password terlalu lemah (minimal 6 karakter).";
-    } else {
-      errorMsg.value = err.message || "Terjadi kesalahan saat registrasi.";
-    }
-  } finally {
-    loading.value = false;
-  }
+const handleRegister = async () => {
+  await authStore.register(email.value, password.value, role.value);
 };
 </script>
