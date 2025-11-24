@@ -7,63 +7,54 @@
 import { initializeApp } from "firebase/app";
 import { getAnalytics, isSupported as isAnalyticsSupported } from "firebase/analytics";
 import { getAuth } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
+import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager } from "firebase/firestore";
 
 // ============================================
 // 🔧 Konfigurasi Firebase dari Environment (.env)
 // ============================================
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "demo-api-key",
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "demo-auth-domain",
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "demo-project-id",
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "demo-storage-bucket",
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "demo-messaging-sender-id",
-  appId: import.meta.env.VITE_FIREBASE_APP_ID || "demo-app-id",
-  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || "demo-measurement-id",
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
 };
 
-// Validasi konfigurasi dasar
-const isFirebaseConfigured = firebaseConfig.apiKey !== "demo-api-key";
+const isFirebaseConfigured = !!firebaseConfig.apiKey;
 
 // ============================================
-// 🚀 Inisialisasi Firebase
+// 🚀 Inisialisasi Firebase & Services
 // ============================================
-let app, analytics, auth, db;
+let app = null;
+let analytics = null;
+let auth = null;
+let db = null;
 
 if (isFirebaseConfigured) {
-  app = initializeApp(firebaseConfig);
-  
-  // 🧠 Analytics hanya aktif di browser environment (bukan SSR atau build)
-  analytics = null;
-  if (typeof window !== "undefined") {
-    isAnalyticsSupported().then((supported) => {
-      if (supported) analytics = getAnalytics(app);
+  try {
+    app = initializeApp(firebaseConfig);
+    auth = getAuth(app);
+
+    // Inisialisasi Firestore dengan persistensi offline dan sinkronisasi multi-tab
+    db = initializeFirestore(app, {
+      localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() })
     });
-  }
-  
-  // ============================================
-  // 🔑 Tambahan Layanan: Authentication & Firestore
-  // ============================================
-  auth = getAuth(app);
-  db = getFirestore(app);
-} else {
-  console.warn("Firebase not configured. Using demo mode.");
-  // Create mock objects for demo mode
-  app = null;
-  analytics = null;
-  auth = {
-    currentUser: null,
-    onAuthStateChanged: (callback) => {
-      callback(null);
-      return () => {};
+
+    if (typeof window !== "undefined") {
+      isAnalyticsSupported().then((supported) => {
+        if (supported) analytics = getAnalytics(app);
+      });
     }
-  };
-  db = {
-    collection: () => {},
-    doc: () => {},
-    getDoc: () => Promise.resolve({ exists: () => false }),
-    getDocs: () => Promise.resolve({ docs: [] })
-  };
+  } catch (error) {
+    console.error("Firebase initialization failed:", error);
+    app = auth = db = analytics = null; // Pastikan semua null jika gagal
+  }
+} else {
+  console.warn(
+    "Firebase is not configured. Authentication and database features will be disabled."
+  );
 }
 
 // ============================================
